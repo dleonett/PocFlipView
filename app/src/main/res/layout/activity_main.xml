@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <Button
+        android:id="@+id/btnFlip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center"
+        android:text="flip" />
+
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="160dp"
+        android:layout_gravity="center">
+
+        <TextView
+            android:id="@+id/viewBackTop"
+            android:layout_width="100dp"
+            android:layout_height="80dp"
+            android:background="#fff"
+            android:gravity="center"
+            android:textSize="36sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/viewBackBottom"
+            android:layout_width="100dp"
+            android:layout_height="80dp"
+            android:layout_gravity="bottom"
+            android:background="#fff"
+            android:gravity="center"
+            android:textSize="36sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/viewFrontTop"
+            android:layout_width="100dp"
+            android:layout_height="80dp"
+            android:background="#fff"
+            android:gravity="center"
+            android:textSize="36sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/viewFrontBottom"
+            android:layout_width="100dp"
+            android:layout_height="80dp"
+            android:layout_gravity="bottom"
+            android:background="#fff"
+            android:gravity="center"
+            android:textSize="36sp"
+            android:textStyle="bold" />
+
+    </FrameLayout>
+
+    <com.example.danielleonett.pocflipview.FlipView
+        android:id="@+id/flipView"
+        android:layout_width="100dp"
+        android:layout_height="160dp"
+        android:layout_gravity="center" />
+
+</FrameLayout>
