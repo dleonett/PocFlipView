@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="ticker_digit_background_radius">6dp</dimen>
+    <dimen name="ticker_digit_width">46dp</dimen>
+    <dimen name="ticker_digit_height">70dp</dimen>
+</resources>

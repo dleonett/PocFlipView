@@ -2,26 +2,8 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:background="#fff" />
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:background="#fff" />
-
-    </LinearLayout>
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_ticker_digit">
 
     <View
         android:layout_width="match_parent"
@@ -29,29 +11,30 @@
         android:layout_gravity="center_vertical"
         android:layout_marginEnd="4dp"
         android:layout_marginStart="4dp"
-        android:background="#f50" />
+        android:background="#253B56" />
 
     <View
-        android:layout_width="4dp"
+        android:layout_width="2dp"
         android:layout_height="8dp"
         android:layout_gravity="center_vertical|start"
-        android:layout_marginStart="4dp"
-        android:background="#50f" />
+        android:layout_marginStart="2dp"
+        android:background="#D0D7DE" />
 
     <View
-        android:layout_width="4dp"
+        android:layout_width="2dp"
         android:layout_height="8dp"
         android:layout_gravity="center_vertical|end"
-        android:layout_marginEnd="4dp"
-        android:background="#50f" />
+        android:layout_marginEnd="2dp"
+        android:background="#D0D7DE" />
 
     <TextView
         android:id="@+id/position_in_line_digit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
+        android:layout_marginTop="-2dp"
         android:textColor="#000"
-        android:textSize="36sp"
-        android:text="3" />
+        android:textSize="48sp"
+        tools:text="3" />
 
 </FrameLayout>

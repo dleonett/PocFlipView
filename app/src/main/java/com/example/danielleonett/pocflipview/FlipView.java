@@ -2,19 +2,15 @@ package com.example.danielleonett.pocflipview;
 
 import android.animation.ValueAnimator;
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Camera;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.RectF;
-import android.os.Build;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.FrameLayout;
 
@@ -22,64 +18,96 @@ public class FlipView extends FrameLayout {
 
     public static final String TAG = FlipView.class.getSimpleName();
 
-    private static final int MAX_SHADOW_ALPHA = 180;// out of 255
-    private static final int MAX_SHADE_ALPHA = 130;// out of 255
-    private static final int MAX_SHINE_ALPHA = 100;// out of 255
+    private static final int MAX_SHADOW_ALPHA = 180; // out of 255
+    private static final int MAX_SHADE_ALPHA = 130; // out of 255
+    private static final int MAX_SHINE_ALPHA = 100; // out of 255
+    private static final int DEGREES_START = 180;
+    private static final int DEGREES_END = 0;
+    private static final long DEFAULT_FLIP_DURATION_MILLIS = 300;
 
-    // clipping rects
+    // Clipping rects to get to top and bottom view pieces
     private RectF mTopRect = new RectF();
     private RectF mBottomRect = new RectF();
 
-    // used for transforming the canvas
+    // Used for transforming the canvas of the flipping piece
     private Camera mCamera = new Camera();
     private Matrix mMatrix = new Matrix();
 
-    // paints drawn above views when flipping
+    // Paint drawn above views when flipping
     private Paint mShadowPaint = new Paint();
     private Paint mShadePaint = new Paint();
     private Paint mShinePaint = new Paint();
 
     private float shadowCornerRadius = 0;
 
-    private View baseView;
-    private View previousView;
+    private View currentView;
+    private View nextView;
 
-    private int flippedDegress;
+    private int degreesFlipped = DEGREES_START;
+
+    private long flipDurationMillis = DEFAULT_FLIP_DURATION_MILLIS;
 
     private ValueAnimator animator;
 
-    public FlipView(@NonNull Context context) {
+    public FlipView(Context context) {
         this(context, null);
     }
 
-    public FlipView(@NonNull Context context, @Nullable AttributeSet attrs) {
+    public FlipView(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public FlipView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+    public FlipView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+
+        TypedArray a = context.obtainStyledAttributes(attrs,
+                R.styleable.FlipView);
+
+        shadowCornerRadius = a.getDimension(R.styleable.FlipView_shadowCornerRadius, 0f);
+
+        a.recycle();
 
         init();
     }
 
     private void init() {
+        initPaints();
+        initFlipAnimator();
+        initEmptyView();
+    }
+
+    private void initPaints() {
         mShadowPaint.setColor(Color.BLACK);
         mShadowPaint.setStyle(Paint.Style.FILL);
         mShadePaint.setColor(Color.BLACK);
         mShadePaint.setStyle(Paint.Style.FILL);
         mShinePaint.setColor(Color.WHITE);
         mShinePaint.setStyle(Paint.Style.FILL);
+    }
 
-        animator = ValueAnimator.ofInt(180, 0);
-        animator.setDuration(10000);
+    private void initFlipAnimator() {
+        animator = ValueAnimator.ofInt(DEGREES_START, DEGREES_END);
+        animator.setDuration(flipDurationMillis);
         animator.setInterpolator(new DecelerateInterpolator());
         animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             public void onAnimationUpdate(ValueAnimator animation) {
-                flippedDegress = (int) animation.getAnimatedValue();
+                degreesFlipped = (int) animation.getAnimatedValue();
                 invalidate();
             }
         });
-        animator.start();
+    }
+
+    private void initEmptyView() {
+        currentView = inflate(getContext(), R.layout.flip_view_empty_view, null);
+        addView(currentView);
+    }
+
+    private void resetViews() {
+        if (nextView != null) {
+            removeView(currentView);
+            currentView = nextView;
+            nextView = null;
+        }
     }
 
     @Override
@@ -143,8 +171,6 @@ public class FlipView extends FrameLayout {
 
     @Override
     protected void dispatchDraw(Canvas canvas) {
-        //super.dispatchDraw(canvas);
-
         drawPreviousHalf(canvas);
         drawNextHalf(canvas);
         drawFlippingHalf(canvas);
@@ -154,10 +180,11 @@ public class FlipView extends FrameLayout {
         canvas.save();
         canvas.clipRect(mTopRect);
 
-        // if the view does not exist, skip drawing it
-        if (baseView != null) {
-            setDrawWithLayer(baseView, true);
-            baseView.draw(canvas);
+        final View view = nextView == null ? currentView : nextView;
+
+        if (view != null) {
+            setDrawWithLayer(view, true);
+            drawChild(canvas, view, 0);
         }
 
         drawPreviousShadow(canvas);
@@ -165,7 +192,6 @@ public class FlipView extends FrameLayout {
     }
 
     private void drawPreviousShadow(Canvas canvas) {
-        final float degreesFlipped = getDegreesFlipped();
         if (degreesFlipped > 90) {
             final int alpha = (int) (((degreesFlipped - 90) / 90f) * MAX_SHADOW_ALPHA);
             mShadowPaint.setAlpha(alpha);
@@ -177,10 +203,11 @@ public class FlipView extends FrameLayout {
         canvas.save();
         canvas.clipRect(mBottomRect);
 
-        // if the view does not exist, skip drawing it
-        if (baseView != null) {
-            setDrawWithLayer(baseView, true);
-            baseView.draw(canvas);
+        final View view = currentView;
+
+        if (view != null) {
+            setDrawWithLayer(view, true);
+            drawChild(canvas, view, 0);
         }
 
         drawNextShadow(canvas);
@@ -188,7 +215,6 @@ public class FlipView extends FrameLayout {
     }
 
     private void drawNextShadow(Canvas canvas) {
-        final float degreesFlipped = getDegreesFlipped();
         if (degreesFlipped < 90) {
             final int alpha = (int) ((Math.abs(degreesFlipped - 90) / 90f) * MAX_SHADOW_ALPHA);
             mShadowPaint.setAlpha(alpha);
@@ -197,15 +223,16 @@ public class FlipView extends FrameLayout {
     }
 
     private void drawFlippingHalf(Canvas canvas) {
-        setDrawWithLayer(baseView, true);
-        final float degreesFlipped = getDegreesFlipped();
         canvas.save();
         mCamera.save();
 
+        View view;
         if (degreesFlipped > 90) {
+            view = currentView;
             canvas.clipRect(mTopRect);
             mCamera.rotateX(degreesFlipped - 180);
         } else {
+            view = nextView;
             canvas.clipRect(mBottomRect);
             mCamera.rotateX(degreesFlipped);
         }
@@ -215,7 +242,8 @@ public class FlipView extends FrameLayout {
         positionMatrix();
         canvas.concat(mMatrix);
 
-        baseView.draw(canvas);
+        setDrawWithLayer(view, true);
+        drawChild(canvas, view, 0);
 
         drawFlippingShadeShine(canvas);
 
@@ -224,7 +252,6 @@ public class FlipView extends FrameLayout {
     }
 
     private void drawFlippingShadeShine(Canvas canvas) {
-        final float degreesFlipped = getDegreesFlipped();
         if (degreesFlipped < 90) {
             final int alpha = (int) ((degreesFlipped / 90f) * MAX_SHINE_ALPHA);
             mShinePaint.setAlpha(alpha);
@@ -251,13 +278,33 @@ public class FlipView extends FrameLayout {
         }
     }
 
+    // region API
+
     public void flipToView(View view) {
-        baseView = view;
-        addView(view);
+        resetViews();
+        addNextView(view);
+
         animator.start();
     }
 
-    private float getDegreesFlipped() {
-        return flippedDegress;
+    public void flipToViewNoAnimation(View view) {
+        resetViews();
+        addNextView(view);
+
+        degreesFlipped = 0;
+        invalidate();
     }
+
+    public void setFlipDuration(long durationMillis) {
+        flipDurationMillis = durationMillis;
+        animator.setDuration(flipDurationMillis);
+    }
+
+    // endregion
+
+    private void addNextView(View view) {
+        addView(view);
+        nextView = view;
+    }
+
 }
