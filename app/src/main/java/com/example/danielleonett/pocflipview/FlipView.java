@@ -1,5 +1,6 @@
 package com.example.danielleonett.pocflipview;
 
+import android.animation.Animator;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -12,8 +13,12 @@ import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
+import android.view.animation.Interpolator;
 import android.widget.FrameLayout;
 
+/**
+ *
+ */
 public class FlipView extends FrameLayout {
 
     public static final String TAG = FlipView.class.getSimpleName();
@@ -91,7 +96,7 @@ public class FlipView extends FrameLayout {
         animator.setInterpolator(new DecelerateInterpolator());
         animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             public void onAnimationUpdate(ValueAnimator animation) {
-                degreesFlipped = (int) animation.getAnimatedValue();
+                degreesFlipped = Math.abs((Integer) animation.getAnimatedValue());
                 invalidate();
             }
         });
@@ -298,6 +303,14 @@ public class FlipView extends FrameLayout {
     public void setFlipDuration(long durationMillis) {
         flipDurationMillis = durationMillis;
         animator.setDuration(flipDurationMillis);
+    }
+
+    public void addAnimationListener(Animator.AnimatorListener listener) {
+        animator.addListener(listener);
+    }
+
+    public void setInterpolator(Interpolator interpolator) {
+        animator.setInterpolator(interpolator);
     }
 
     // endregion

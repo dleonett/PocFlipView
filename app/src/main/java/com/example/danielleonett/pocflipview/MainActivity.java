@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
@@ -13,7 +12,7 @@ public class MainActivity extends AppCompatActivity {
     private FlipView flipView2;
     private FlipView flipView3;
 
-    private int position;
+    private int position = 9;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,9 +26,9 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.btnFlip).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                position++;
-                if (position > 9) {
-                    position = 0;
+                position--;
+                if (position < 0) {
+                    position = 9;
                 }
 
                 View view;
