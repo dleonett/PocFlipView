@@ -5,12 +5,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
-    private FlipView flipView1;
-    private FlipView flipView2;
-    private FlipView flipView3;
+    private FlipTickerView flipView1;
+    private FlipTickerView flipView2;
+    private FlipTickerView flipView3;
 
     private int position = 9;
 
@@ -22,6 +23,19 @@ public class MainActivity extends AppCompatActivity {
         flipView1 = findViewById(R.id.flipView1);
         flipView2 = findViewById(R.id.flipView2);
         flipView3 = findViewById(R.id.flipView3);
+
+        flipView1.setFlipDuration(5000);
+        flipView1.setFlipListener(new FlipTickerView.FlipListener() {
+            @Override
+            public void onFlipStarted() {
+                Toast.makeText(MainActivity.this, "onFlipStarted", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onFlipEnded() {
+                Toast.makeText(MainActivity.this, "onFlipEnded", Toast.LENGTH_SHORT).show();
+            }
+        });
 
         findViewById(R.id.btnFlip).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -39,19 +53,19 @@ public class MainActivity extends AppCompatActivity {
                 tv = view.findViewById(R.id.position_in_line_digit);
                 tv.setText(String.valueOf(position));
 
-                flipView1.flipToView(view);
+                flipView1.smoothFlipToView(view);
 
                 view = inflater.inflate(R.layout.view_digit, null);
                 tv = view.findViewById(R.id.position_in_line_digit);
                 tv.setText(String.valueOf(position));
 
-                flipView2.flipToView(view);
+                flipView2.smoothFlipToView(view);
 
                 view = inflater.inflate(R.layout.view_digit, null);
                 tv = view.findViewById(R.id.position_in_line_digit);
                 tv.setText(String.valueOf(position));
 
-                flipView3.flipToView(view);
+                flipView3.smoothFlipToView(view);
             }
         });
     }
